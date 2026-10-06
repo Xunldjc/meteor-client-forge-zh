@@ -35,5 +35,5 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: meteor-mc1.20.1-forge${{ matrix.forge }}-zh
-          path: build/libs/meteor-client-0.5.4-forge-zh.jar
+          path: build/libs/meteor-client-0.5.4-forge-zh-embedded-baritone.jar
           if-no-files-found: error

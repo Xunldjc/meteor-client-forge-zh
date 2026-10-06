@@ -24,6 +24,10 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (mixinClassName.endsWith(".FarsightBaritoneMixin")) {
+            LoadingModList mods = LoadingModList.get();
+            return mods != null && mods.getMods().stream().anyMatch(mod -> mod.getModId().equals("farsight_view"));
+        }
         if (mixinClassName.endsWith(".EntityCullingMixin")) {
             LoadingModList mods = LoadingModList.get();
             return mods != null && mods.getMods().stream().anyMatch(mod -> mod.getModId().equals("entityculling"));

@@ -12,13 +12,15 @@
 
 | Minecraft | Forge | Java | 状态 |
 | --- | --- | --- | --- |
-| 1.20.1 | 47.4.10 | 17 | Shader 重复实体绘制修复版，整合包及游戏内回归通过 |
+| 1.20.1 | 47.4.10 | 17 | Baritone 内嵌版，保留 Shader 与整合包兼容修复 |
 
 1. 建立独立的 Minecraft 1.20.1 / 对应 Forge / Java 17 实例。
-2. 下载对应 Release 的完整安装 ZIP，把 `mods/` 中的 Meteor 和 Baritone 两个 JAR 放进实例。
+2. 下载对应 Release 的 Meteor JAR，或完整安装 ZIP，把 `mods/` 中的唯一 Meteor JAR 放进实例。
 3. 正常启动，按右 Shift 打开 Meteor 界面。
 
-升级时只保留一份 Meteor JAR 和一份 `baritone-unoptimized-forge-1.10.1.jar`。
+升级时只保留一份 Meteor JAR，移除旧 Meteor 和外置 Baritone JAR。
+Baritone Forge 1.10.1 已原样内嵌，Forge 会通过 JarJar 加载其入口、Mixin 和 API。
+聊天命令继续使用 `#` 前缀，例如 `#mine minecraft:stone` 和 `#stop`。
 不要混入 Fabric Meteor、Fabric Baritone、Fabric Loader、Fabric API 或 Connector。
 不要使用 `-all.jar` 开发产物；不要安装到专用服务器。先备份存档和配置。
 请遵守服务器规则。
@@ -34,12 +36,15 @@
 - Shader 遮罩只写入独立轮廓缓冲区，修复完整实体模型被重复绘制、悬浮或位置错乱的问题。
 - 保留 ATM9 的 FOV 方法选择、Packet Fixer/Connectivity 数据包限制协作和 EntityCulling
   自定义实体绘制兼容修复。
+- 原样内嵌 Baritone Forge 1.10.1，不需要单独安装 Baritone。
+- Farsight 场景下，Baritone 的寻路快照改为读取 Farsight 实际加载的区块映射，
+  避免从空的原版区块数组复制快照后持续报告找不到路径。未安装 Farsight 时沿用原逻辑。
 
 拼音库已包含在 JAR 中，无需额外安装。英文界面可使用 JVM 参数 `-Dmeteor.locale=en_us`。
 
 ## 验证与限制
 
-最新 JAR 已通过 Java 17 构建、分发 metadata/SRG 检查、纯 Forge Mixin 审计、
+此前渲染修复版已通过 Java 17 构建、分发 metadata/SRG 检查、纯 Forge Mixin 审计、
 Zombie Invade 100 Days v2.3 整包启动与新建世界、中文 GUI/设置、拼音筛选、
 远处实体的 Shader 模型掩码及 EntityCulling 回归。缓冲区探针复现了旧版泄漏，
 并验证修复版不向普通实体缓冲区写入顶点。
@@ -71,7 +76,7 @@ Zombie Invade 100 Days v2.3 整包启动与新建世界、中文 GUI/设置、�
 
 Windows 使用 `gradlew.bat`。默认编译目标为 Forge 47.2.0，与已测试 JAR 的源码一致。
 使用 `-Pforge_version=47.4.10` 可选择另一编译目标。
-正式产物为 `build/libs/meteor-client-0.5.4-forge-zh.jar`，不要使用 `-all.jar`。
+正式产物为 `build/libs/meteor-client-0.5.4-forge-zh-embedded-baritone.jar`，不要使用 `-all.jar`。
 首次构建需要下载 Gradle、Forge 和映射依赖。
 
 CI 只编译 1.20.1 的两个 Forge 目标，不运行图形客户端，不代表其他 Minecraft 版本通过验证。

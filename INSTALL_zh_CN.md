@@ -7,15 +7,17 @@
 ## 安装
 
 1. 使用 Java 17，建立 Minecraft **1.20.1 / Forge 47.4.10** 客户端实例。
-2. 把安装包内 `mods/` 下的两个 JAR 一起放进该实例的 `mods` 文件夹：
-   `meteor-client-0.5.4-mc1.20.1-render-fix-zh.jar` 和 `baritone-unoptimized-forge-1.10.1.jar`。
+2. 把安装包内 `mods/` 下的唯一 JAR 放进该实例的 `mods` 文件夹：
+   `meteor-client-0.5.4-mc1.20.1-embedded-baritone-zh.jar`。
 3. 正常启动游戏，按右 Shift 打开 Meteor 界面。
 
 不要安装 Fabric Loader、Fabric API 或 Connector，也不要同时放入旧版 Meteor、
 Fabric Baritone 或重复的 Baritone。不要使用源码构建目录中的 `-all.jar`。
 这是客户端模组，不要放到专用服务器。建议先备份存档和旧配置。
 模组沿用实例内的 `meteor-client` 配置目录，不会自动迁移其他实例的配置。
-升级本次修订时，只替换旧的 Meteor JAR，保留 Baritone；不要留下两份 Meteor。
+升级本次修订时，移除旧 Meteor 和外置 Baritone，只保留新的 Meteor JAR。
+Baritone Forge 1.10.1 已完整内嵌；Forge JarJar 保留其独立入口、Mixin 与 API。
+在聊天框输入 `#mine minecraft:stone` 可挖掘石头，输入 `#stop` 停止任务。
 
 Meteor 界面默认简体中文。需要英文时，在启动器 JVM 参数中添加
 `-Dmeteor.locale=en_us`。游戏自身语言可在 Minecraft 语言菜单中调整。
@@ -27,7 +29,8 @@ Meteor 界面默认简体中文。需要英文时，在启动器 JVM 参数中�
 - 仍有部分设置说明、聊天消息、动态标签及选项使用英文；不是全量汉化。
 - 已验证正式 Forge 安装启动、Mixin 审计、模块/设置界面、创建单人超平坦世界、
   移动 40 个游戏刻，以及全亮模块的开关状态恢复和正常退出。
-- 最新 JAR 已通过 Zombie Invade 100 Days v2.3 整包、纯 Forge 和 EntityCulling 回归。
+- 此前渲染修复版已通过 Zombie Invade 100 Days v2.3 整包、纯 Forge 和 EntityCulling 回归。
+- 本版内嵌 Baritone，并适配 Farsight 的区块快照；当前构建的实际测试结果见 `VERIFY_RELEASE.txt`。
 - 这些检查不代表每个模块的效果都正确。联机、长时间运行、其他附加模组、
   外部光影包以及 Forge 实验性光照管线尚未验证。
   Fabric 附加模组不能直接兼容。
@@ -64,7 +67,7 @@ Shader 遮罩现在只写入独立轮廓缓冲区，修复完整实体模型被�
 `gradlew.bat build` 或 `./gradlew build`；首次构建需要下载依赖。
 默认编译目标 Forge 47.2.0，生产 JAR 在 Forge 47.4.10 上验证。
 Release 的 `DIFF-from-previous-github.patch` 对应本仓库旧提交
-`87c778ab594eee7e2f66d7fcb433c586ba8d0b68` 到新发布提交的源码变更。
+`8ddee9062a5bbf3604fd29055f7ea586c4b2ad23` 到本次 Baritone 内嵌版的源码变更。
 `VERIFY_RELEASE.txt` 提供公开测试摘要，`SHA256SUMS.txt` 提供下载校验值。
 
 Meteor 及修改源码遵循 **GPL-3.0**。Baritone v1.10.1 来自

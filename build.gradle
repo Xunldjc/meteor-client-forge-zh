@@ -5,11 +5,15 @@ plugins {
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
 archivesBaseName = project.archives_base_name
-version = project.mod_version + '-forge-zh'
+version = project.mod_version + '-forge-zh-embedded-baritone'
 group = project.maven_group
 java.withSourcesJar()
 
 repositories {
+    flatDir {
+        dirs 'libs'
+        content { includeGroup 'baritone' }
+    }
     maven { url = 'https://maven.meteordev.org/releases' }
     mavenCentral()
 }
@@ -24,6 +28,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     forge "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
     modImplementation files('libs/baritone-unoptimized-forge-1.10.1.jar')
+    include('baritone:baritone-unoptimized-forge:1.10.1') { transitive = false }
 
     library "meteordevelopment:orbit:${project.orbit_version}"
     library "meteordevelopment:starscript:${project.starscript_version}"

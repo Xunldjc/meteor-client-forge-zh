@@ -38,7 +38,7 @@ public final class ForgeSmoke {
     public static void tick() {
         var client = MeteorClient.mc;
         if (System.nanoTime() - STARTED > TIMEOUT) throw new IllegalStateException("Smoke test timed out: " + client.currentScreen);
-        if (phase >= 3 && phase <= 6 && client.currentScreen instanceof DisconnectedScreen)
+        if (phase >= 3 && phase <= 7 && client.currentScreen instanceof DisconnectedScreen)
             throw new IllegalStateException("Smoke test disconnected before completion");
         if (client.getOverlay() != null) return;
         if (phase == 2 && client.currentScreen instanceof CreateWorldScreen screen) {
@@ -87,6 +87,10 @@ public final class ForgeSmoke {
 
     public static void afterRender() {
         var client = MeteorClient.mc;
+        if (phase == 7) {
+            if (ForgeBaritoneSmoke.afterRender()) finishWorldTest();
+            return;
+        }
         if (phase == 6) {
             ForgeRegressionSmoke.afterRender();
             return;
@@ -101,13 +105,10 @@ public final class ForgeSmoke {
             if (fullbright.isActive() != fullbrightWasActive) throw new IllegalStateException("Module state was not restored");
             MeteorClient.LOG.info("METEOR_FORGE_WORLD_PASS ticks={} movement={} fullbrightToggleRestored=true", client.player.age - worldAge, movement);
             MeteorClient.LOG.info("METEOR_FORGE_SMOKE_PASS modules={} chinese={} world=true", Modules.get().getAll().size(), ChineseTranslations.isChinese());
-            if (Boolean.getBoolean("meteor.smoke.regression")) {
-                phase = 6;
-                ForgeRegressionSmoke.begin();
-                return;
-            }
-            phase = 5;
-            client.scheduleStop();
+            if (Boolean.getBoolean("meteor.smoke.baritone")) {
+                phase = 7;
+                ForgeBaritoneSmoke.begin();
+            } else finishWorldTest();
             return;
         }
         if (!opened || client.getOverlay() != null || !(client.currentScreen instanceof WidgetScreen)) return;
@@ -131,6 +132,16 @@ public final class ForgeSmoke {
                     client.scheduleStop();
                 }
             }
+        }
+    }
+
+    private static void finishWorldTest() {
+        if (Boolean.getBoolean("meteor.smoke.regression")) {
+            phase = 6;
+            ForgeRegressionSmoke.begin();
+        } else {
+            phase = 5;
+            MeteorClient.mc.scheduleStop();
         }
     }
 

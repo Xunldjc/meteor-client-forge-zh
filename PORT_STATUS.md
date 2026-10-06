@@ -10,20 +10,14 @@ on Linux. Target: Minecraft 1.20.1, Forge 47.2.0. Yarn remains a build-time
 mapping dependency; the distribution is remapped to Forge SRG names.
 This is not a Connector wrapper and does not require Fabric Loader.
 
-Install the remapped `meteor-client-0.5.4-forge-zh.jar` and the bundled
-`libs/baritone-unoptimized-forge-1.10.1.jar` together in a client-only
+Install only the remapped `meteor-client-0.5.4-forge-zh-embedded-baritone.jar` in a client-only
 Forge 1.20.1 instance. Do not use the `-all.jar` development artifact.
 The Baritone release is from cabaletta/baritone v1.10.1 and is distributed
-unmodified. Do not install the old Fabric Baritone or duplicate Baritone jars.
+unmodified inside Meteor via Forge JarJar. Remove external Baritone when upgrading.
+Farsight's loaded-chunk map is adapted to Baritone's immutable pathfinding snapshot;
+normal client chunk storage and standalone Baritone behavior are unchanged.
 
 ## Changes
-
-The latest render-fix revision isolates Shader mask geometry from normal entity
-buffers to prevent duplicate textured models. It also retains the ATM9 canonical
-FOV selector, external packet-limit delegation and custom-pass EntityCulling fix.
-The delivered JAR is compiled with Forge 47.2.0 and validated in Forge 47.4.10
-Zombie Invade 100 Days v2.3. VERIFICATION_PUBLIC.md supersedes older test summaries
-below; the Release targets Minecraft 1.20.1 / Forge 47.4.10 / Java 17.
 
 - Native `@Mod` entrypoint: `MeteorForge`, mod ID `meteor_client`.
 - Retains the original `meteor-client` configuration directory and IDs.
