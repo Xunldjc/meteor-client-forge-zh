@@ -1,0 +1,24 @@
+pinyin4j 2.5.1
+Maven coordinates: com.belerweb:pinyin4j:2.5.1
+Project: https://github.com/belerweb/pinyin4j
+Original project: https://sourceforge.net/projects/pinyin4j/
+Original author: Li Min (xmlerlimin@gmail.com)
+
+The Maven POM labels the package BSD, but the distributed source headers
+state GNU GPL version 2 or (at your option) any later version. This release
+retains those headers and conservatively distributes the combined work
+under GPL-3.0, permitted by the source's "any later version" clause.
+The exact 2.5.1 source JAR is supplied alongside the installation bundle.
+The full GNU GPL version 3 text is supplied as Meteor-GPL-3.0.txt / LICENSE.
+
+Original source notice:
+This file is part of pinyin4j (http://sourceforge.net/projects/pinyin4j/)
+and distributed under GNU GENERAL PUBLIC LICENSE (GPL).
+pinyin4j is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option)
+any later version.
+pinyin4j is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details.

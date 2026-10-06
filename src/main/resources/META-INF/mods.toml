@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="GPL-3.0"
+issueTrackerURL="https://github.com/MeteorDevelopment/meteor-client/issues"
+
+[[mods]]
+modId="meteor_client"
+version="${version}"
+displayName="Meteor Client (Forge / zh_CN)"
+displayURL="https://meteorclient.com"
+logoFile="assets/meteor-client/icon.png"
+authors="Meteor Development; unofficial Forge port"
+description='''Unofficial native Forge port of Meteor Client 0.5.4 for Minecraft 1.20.1, with Simplified Chinese UI. Work in progress; see PORT_STATUS.md.'''
+displayTest="IGNORE_ALL_VERSION"
+
+[[dependencies.meteor_client]]
+modId="forge"
+mandatory=true
+versionRange="[47.2,48)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.meteor_client]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.20.2)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.meteor_client]]
+modId="baritoe"
+mandatory=true
+versionRange="[1.10.1,1.11)"
+ordering="AFTER"
+side="CLIENT"

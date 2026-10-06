@@ -1,0 +1,151 @@
+plugins {
+    id 'dev.architectury.loom' version '1.3.385'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+archivesBaseName = project.archives_base_name
+version = project.mod_version + '-forge-zh'
+group = project.maven_group
+java.withSourcesJar()
+
+repositories {
+    maven { url = 'https://maven.meteordev.org/releases' }
+    mavenCentral()
+}
+
+configurations {
+    implementation.extendsFrom(library)
+    shadow.extendsFrom(library)
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    forge "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
+    modImplementation files('libs/baritone-unoptimized-forge-1.10.1.jar')
+
+    library "meteordevelopment:orbit:${project.orbit_version}"
+    library "meteordevelopment:starscript:${project.starscript_version}"
+    library "meteordevelopment:discord-ipc:${project.discordipc_version}"
+    library 'org.reflections:reflections:0.10.2'
+    library 'com.belerweb:pinyin4j:2.5.1'
+    library('io.netty:netty-handler-proxy:4.1.90.Final') { transitive = false }
+    library('io.netty:netty-codec-socks:4.1.90.Final') { transitive = false }
+    include implementation('io.github.llamalad7:mixinextras-forge:0.3.5')
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.3.5'
+    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.3.5'
+}
+
+loom {
+    mods {
+        meteor_client {
+            sourceSet sourceSets.main
+            modFiles.from(configurations.library.filter { !it.name.startsWith('slf4j-') && !it.name.startsWith('jsr305-') })
+        }
+    }
+    accessWidenerPath = file('src/main/resources/meteor-client.accesswidener')
+    forge {
+        convertAccessWideners = true
+        mixinConfig 'meteor-client.mixins.json', 'meteor-client-baritone.mixins.json'
+    }
+    mixin { defaultRefmapName = 'meteor-client.refmap.json' }
+    runs {
+        client {
+            if (project.hasProperty('smokeTest') || project.hasProperty('worldSmoke')) {
+                vmArg '-Dmeteor.smoke=true'
+                programArgs '--width', '1280', '--height', '720'
+            }
+            if (project.hasProperty('worldSmoke')) vmArg '-Dmeteor.smoke.world=true'
+        }
+    }
+}
+
+// Fabric renderer integrations and the Knot-specific ASM hook do not run on Forge.
+sourceSets.main.java {
+    exclude 'meteordevelopment/meteorclient/asm/**'
+    exclude 'meteordevelopment/meteorclient/mixin/DrawContextMixin.java'
+    exclude 'meteordevelopment/meteorclient/mixin/indigo/**'
+    exclude 'meteordevelopment/meteorclient/mixin/indium/**'
+    exclude 'meteordevelopment/meteorclient/mixin/sodium/**'
+    exclude 'meteordevelopment/meteorclient/mixin/lithium/**'
+    exclude 'meteordevelopment/meteorclient/mixin/canvas/**'
+}
+sourceSets.main.resources {
+    exclude 'fabric.mod.json'
+    exclude 'meteor-client-indigo.mixins.json', 'meteor-client-indium.mixins.json'
+    exclude 'meteor-client-sodium.mixins.json', 'meteor-client-lithium.mixins.json'
+    exclude 'meteor-client-canvas.mixins.json'
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching(['META-INF/mods.toml', 'meteor-build.properties']) {
+        expand version: project.version, commit: '6d76982a87ed175642d4f2ba2703179ab816cde3'
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    dependencies { exclude { it.moduleGroup == 'org.slf4j' || it.moduleGroup == 'com.google.code.findbugs' } }
+}
+
+jar {
+    from 'LICENSE'
+    manifest { attributes 'MixinConfigs': 'meteor-client.mixins.json,meteor-client-baritone.mixins.json' }
+}
+
+remapJar {
+    dependsOn shadowJar
+    inputFile.set(shadowJar.archiveFile)
+}
+
+tasks.named('sourcesJar', Jar) { from 'LICENSE' }
+
+tasks.register('smokeZh', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'TranslationSmoke'
+    enableAssertions = true
+    systemProperty 'meteor.locale', 'zh_cn'
+}
+tasks.register('smokeEn', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'TranslationSmoke'
+    enableAssertions = true
+    systemProperty 'meteor.locale', 'en_us'
+}
+tasks.register('smokeAsm', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ForgeAsmSmoke'
+    enableAssertions = true
+}
+tasks.register('smokeWrapping', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'TextWrappingSmoke'
+    enableAssertions = true
+}
+check.dependsOn smokeZh, smokeEn, smokeAsm, smokeWrapping
+
+tasks.register('smokeDistribution', JavaExec) {
+    dependsOn testClasses, remapJar
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ForgeDistributionSmoke'
+    enableAssertions = true
+    inputs.file(remapJar.archiveFile)
+    doFirst { args remapJar.archiveFile.get().asFile.absolutePath }
+}
+check.dependsOn smokeDistribution
+
+tasks.register('smokePinyin', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'PinyinSearchSmoke'
+    enableAssertions = true
+}
+check.dependsOn smokePinyin
