@@ -68,6 +68,7 @@
     "CrossbowItemAccessor",
     "CustomPayloadC2SPacketAccessor",
     "CustomPayloadS2CPacketMixin",
+    "EntityCullingMixin",
     "DefaultSkinHelperMixin",
     "DisconnectedScreenMixin",
     "EnchantingTableBlockEntityRendererMixin",

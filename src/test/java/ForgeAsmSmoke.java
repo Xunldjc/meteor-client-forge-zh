@@ -7,7 +7,7 @@ public class ForgeAsmSmoke {
     public static void main(String[] args) throws Exception {
         ClassNode renderer = new ClassNode();
         renderer.name = "fixture/GameRenderer";
-        MethodNode fov = new MethodNode(Opcodes.ACC_PUBLIC, "runtimeName", "(Ljava/lang/Object;FZ)D", null, null);
+        MethodNode fov = new MethodNode(Opcodes.ACC_PUBLIC, "getFov", "(Lnet/minecraft/client/render/Camera;FZ)D", null, null);
         fov.maxLocals = 6;
         fov.maxStack = 8;
         fov.instructions.add(new InsnNode(Opcodes.ICONST_5));

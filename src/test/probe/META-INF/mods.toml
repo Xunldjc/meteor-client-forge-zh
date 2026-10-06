@@ -1,0 +1,15 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="GPL-3.0"
+
+[[mods]]
+modId="meteor_shader_probe"
+version="1.0.0"
+displayName="Meteor Shader Buffer Regression Probe"
+
+[[dependencies.meteor_shader_probe]]
+modId="meteor_client"
+mandatory=true
+versionRange="[0,)"
+ordering="AFTER"
+side="CLIENT"

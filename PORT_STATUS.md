@@ -18,6 +18,13 @@ unmodified. Do not install the old Fabric Baritone or duplicate Baritone jars.
 
 ## Changes
 
+The latest render-fix revision isolates Shader mask geometry from normal entity
+buffers to prevent duplicate textured models. It also retains the ATM9 canonical
+FOV selector, external packet-limit delegation and custom-pass EntityCulling fix.
+The delivered JAR is compiled with Forge 47.2.0 and validated in Forge 47.4.10
+Zombie Invade 100 Days v2.3. VERIFICATION_PUBLIC.md supersedes older test summaries
+below; the Release targets Minecraft 1.20.1 / Forge 47.4.10 / Java 17.
+
 - Native `@Mod` entrypoint: `MeteorForge`, mod ID `meteor_client`.
 - Retains the original `meteor-client` configuration directory and IDs.
 - Replaces Fabric metadata, game path and addon entrypoint discovery.

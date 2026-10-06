@@ -24,6 +24,16 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (mixinClassName.endsWith(".EntityCullingMixin")) {
+            LoadingModList mods = LoadingModList.get();
+            return mods != null && mods.getMods().stream().anyMatch(mod -> mod.getModId().equals("entityculling"));
+        }
+        if (mixinClassName.endsWith(".CustomPayloadS2CPacketMixin")) {
+            // Competing ModifyConstant handlers suppress the pack's larger packet limit.
+            LoadingModList mods = LoadingModList.get();
+            return mods == null || mods.getMods().stream().noneMatch(mod ->
+                mod.getModId().equals("packetfixer") || mod.getModId().equals("connectivity"));
+        }
         if (mixinClassName.endsWith("PlayerEntityRendererMixin")) {
             LoadingModList mods = LoadingModList.get();
             return mods == null || mods.getMods().stream().noneMatch(mod -> mod.getModId().equals("origins"));

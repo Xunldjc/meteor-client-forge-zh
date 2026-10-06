@@ -8,12 +8,11 @@
 ## 下载与安装
 
 [GitHub Releases](https://github.com/Xunldjc/meteor-client-forge-zh/releases)
-提供两个已验证的 Forge 构建，均为客户端模组：
+提供最新修复版，旧 Release 已由此版本替换。这是客户端模组：
 
 | Minecraft | Forge | Java | 状态 |
 | --- | --- | --- | --- |
-| 1.20.1 | 47.4.10 | 17 | 推荐 Forge 目标，构建及游戏内回归通过 |
-| 1.20.1 | 47.2.0 | 17 | 原移植目标，构建及游戏内回归通过 |
+| 1.20.1 | 47.4.10 | 17 | Shader 重复实体绘制修复版，整合包及游戏内回归通过 |
 
 1. 建立独立的 Minecraft 1.20.1 / 对应 Forge / Java 17 实例。
 2. 下载对应 Release 的完整安装 ZIP，把 `mods/` 中的 Meteor 和 Baritone 两个 JAR 放进实例。
@@ -32,13 +31,18 @@
   `jiangshi` 搜索“僵尸”。方块、物品及实体按当前游戏显示名称匹配，中文拼音需中文游戏语言。
 - Shader ESP 使用独立的已加载实体绘制流程，修复原版模型距离裁剪导致的远处实体漏绘。
   仍遵守实体选择、视距、自身过滤、NoRender 和视锥限制；未加载实体无法绘制。
+- Shader 遮罩只写入独立轮廓缓冲区，修复完整实体模型被重复绘制、悬浮或位置错乱的问题。
+- 保留 ATM9 的 FOV 方法选择、Packet Fixer/Connectivity 数据包限制协作和 EntityCulling
+  自定义实体绘制兼容修复。
 
 拼音库已包含在 JAR 中，无需额外安装。英文界面可使用 JVM 参数 `-Dmeteor.locale=en_us`。
 
 ## 验证与限制
 
-已验证本地 Java 17 构建、分发 metadata/SRG 检查、Mixin 审计、中文 GUI/设置、
-单人测试世界、拼音筛选以及远处牛和小型猪的 Shader 模型掩码。
+最新 JAR 已通过 Java 17 构建、分发 metadata/SRG 检查、纯 Forge Mixin 审计、
+Zombie Invade 100 Days v2.3 整包启动与新建世界、中文 GUI/设置、拼音筛选、
+远处实体的 Shader 模型掩码及 EntityCulling 回归。缓冲区探针复现了旧版泄漏，
+并验证修复版不向普通实体缓冲区写入顶点。
 详见 [公开验证摘要](VERIFICATION_PUBLIC.md)。
 
 这仍是实验移植，不是完全汉化，也不保证所有模块、联机、长时间运行、
@@ -50,7 +54,7 @@
 
 按官方 Forge 清单，对 Minecraft 1.14.4 至 26.3 的正式版各选择一个推荐 Forge，
 无推荐版时选择最新版，共 40 个目标。**已验证 1 个目标，1 个依赖检查失败，38 个未移植。**
-47.2.0 和 47.4.10 是同一个 Minecraft 版本的两个 Forge 构建，不是两个 Minecraft 目标。
+本次 JAR 在 Forge 47.2.0 上编译，在 Forge 47.4.10 整包中验证；它们不是两个 Minecraft 目标。
 没有为未构建的版本创建空 Release。完整列表见 [build-matrix.csv](build-matrix.csv)。
 
 1.14.4 的 Java 8 依赖、Minecraft API/Mixin 及 Baritone Forge 集成仍需移植。
@@ -65,7 +69,8 @@
 ./gradlew build --no-daemon --console=plain
 ```
 
-Windows 使用 `gradlew.bat`。默认 Forge 版本见 `gradle.properties`。
+Windows 使用 `gradlew.bat`。默认编译目标为 Forge 47.2.0，与已测试 JAR 的源码一致。
+使用 `-Pforge_version=47.4.10` 可选择另一编译目标。
 正式产物为 `build/libs/meteor-client-0.5.4-forge-zh.jar`，不要使用 `-all.jar`。
 首次构建需要下载 Gradle、Forge 和映射依赖。
 

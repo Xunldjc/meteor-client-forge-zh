@@ -11,6 +11,7 @@ import meteordevelopment.meteorclient.systems.modules.render.Fullbright;
 import meteordevelopment.meteorclient.utils.misc.ChineseTranslations;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.AccessibilityOnboardingScreen;
+import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.screen.world.WorldCreator;
 import net.minecraft.world.Difficulty;
@@ -30,12 +31,15 @@ public final class ForgeSmoke {
     private static Vec3d worldPosition;
     private static boolean fullbrightWasActive;
     private static final long STARTED = System.nanoTime();
+    private static final long TIMEOUT = java.util.concurrent.TimeUnit.SECONDS.toNanos(Math.max(1L, Long.getLong("meteor.smoke.timeoutSeconds", 180L)));
 
     private ForgeSmoke() {}
 
     public static void tick() {
         var client = MeteorClient.mc;
-        if (System.nanoTime() - STARTED > 180_000_000_000L) throw new IllegalStateException("Smoke test timed out: " + client.currentScreen);
+        if (System.nanoTime() - STARTED > TIMEOUT) throw new IllegalStateException("Smoke test timed out: " + client.currentScreen);
+        if (phase >= 3 && phase <= 6 && client.currentScreen instanceof DisconnectedScreen)
+            throw new IllegalStateException("Smoke test disconnected before completion");
         if (client.getOverlay() != null) return;
         if (phase == 2 && client.currentScreen instanceof CreateWorldScreen screen) {
             var creator = screen.getWorldCreator();
@@ -64,7 +68,8 @@ public final class ForgeSmoke {
         }
         if (client.currentScreen instanceof AccessibilityOnboardingScreen) client.setScreen(new TitleScreen());
         if (!opened && client.currentScreen instanceof TitleScreen) {
-            MixinEnvironment.getCurrentEnvironment().audit();
+            if (!Boolean.getBoolean("meteor.smoke.skipGlobalAudit")) MixinEnvironment.getCurrentEnvironment().audit();
+            if (Boolean.getBoolean("meteor.smoke.payload")) ForgePayloadSmoke.run();
             int count = Modules.get().getAll().size();
             if (count < 168) throw new IllegalStateException("Incomplete module initialization: " + count);
             if (ChineseTranslations.isChinese()) {
@@ -116,7 +121,7 @@ public final class ForgeSmoke {
                 phaseStarted = System.nanoTime();
             }
             else {
-                MeteorClient.LOG.info("METEOR_FORGE_GUI_PASS modules={} chinese={} settingsFrames={} mixinAudit=true", Modules.get().getAll().size(), ChineseTranslations.isChinese(), frames);
+                MeteorClient.LOG.info("METEOR_FORGE_GUI_PASS modules={} chinese={} settingsFrames={} mixinAudit={}", Modules.get().getAll().size(), ChineseTranslations.isChinese(), frames, !Boolean.getBoolean("meteor.smoke.skipGlobalAudit"));
                 if (Boolean.getBoolean("meteor.smoke.world")) {
                     phase = 2;
                     CreateWorldScreen.create(client, new TitleScreen());

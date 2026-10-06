@@ -149,3 +149,38 @@ tasks.register('smokePinyin', JavaExec) {
     enableAssertions = true
 }
 check.dependsOn smokePinyin
+
+tasks.register('smokeFovCompatibility', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ForgeFovCompatibilitySmoke'
+    enableAssertions = true
+    doFirst {
+        def namedJars = sourceSets.main.compileClasspath.files.findAll {
+            it.name.startsWith("forge-${project.minecraft_version}-${project.forge_version}-minecraft-merged-") && !it.name.endsWith('-sources.jar')
+        }
+        if (namedJars.size() != 1) throw new GradleException('Expected one mapped Minecraft JAR')
+        args namedJars.first().absolutePath,
+            new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${project.minecraft_version}/forge/${project.minecraft_version}-${project.forge_version}/minecraft-merged-srg-patched.jar").absolutePath
+        if (project.hasProperty('compatTarget')) args project.property('compatTarget')
+    }
+}
+check.dependsOn smokeFovCompatibility
+
+tasks.register('shaderProbeJar', Jar) {
+    dependsOn testClasses
+    archiveBaseName.set('meteor-shader-buffer-probe')
+    archiveVersion.set('1.0.0')
+    archiveClassifier.set('dev')
+    from(sourceSets.test.output) { include 'meteor/shadertest/ForgeShaderBufferProbe*.class' }
+    from('src/test/probe')
+}
+
+tasks.register('remapShaderProbe', net.fabricmc.loom.task.RemapJarTask) {
+    dependsOn shaderProbeJar
+    inputFile.set(shaderProbeJar.archiveFile)
+    archiveBaseName.set('meteor-shader-buffer-probe')
+    archiveVersion.set('1.0.0')
+    archiveClassifier.set('')
+    addNestedDependencies.set(false)
+}

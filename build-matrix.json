@@ -244,9 +244,9 @@
       "status": "VALIDATED",
       "build_exit": 0,
       "runtime_exit": 0,
-      "jar": "meteor-client-0.5.4-mc1.20.1-forge47.4.10-zh.jar",
-      "jar_sha256": "8af9a973e5cd9168f36b1ef3db331015fdb51f069e63b71e6adc71ed83f6c8e0",
-      "notes": "Forge 47.4.10 build, production GUI/world/search/Shader regression pass. Only this selected target is delivered."
+      "jar": "meteor-client-0.5.4-mc1.20.1-render-fix-zh.jar",
+      "jar_sha256": "0a7abb89e49680dd2a40f1d1cc12f0234cc2931557fc2cf277c6e22b986e10eb",
+      "notes": "Forge 47.2.0 build; Forge 47.4.10 Zombie pack and standalone runtime pass. Shader buffer isolation and EntityCulling regressions pass."
     },
     {
       "minecraft": "1.20.2",

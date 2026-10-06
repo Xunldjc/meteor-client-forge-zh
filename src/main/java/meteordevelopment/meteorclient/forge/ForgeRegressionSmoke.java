@@ -43,6 +43,8 @@ public final class ForgeRegressionSmoke {
     private ForgeRegressionSmoke() {}
 
     public static void begin() {
+        ForgeFovSmoke.run();
+        ForgeCullingSmoke.run();
         checkSearch();
         startedAge = mc.player.age;
         origin = mc.player.getPos();
@@ -73,6 +75,9 @@ public final class ForgeRegressionSmoke {
         if (mob == null) throw new IllegalStateException("Fixture spawn failed");
         mob.refreshPositionAndAngles(origin.x + dx, origin.y, origin.z + dz, 180, 0);
         mob.setAiDisabled(true);
+        // Pack world presets can embed fixtures in terrain; keep their mask geometry stable.
+        mob.setInvulnerable(true);
+        mob.setNoGravity(true);
         mob.setCustomName(Text.literal(name));
         boolean spawned = world.spawnEntity(mob);
         MeteorClient.LOG.info("REGRESSION_SPAWN name={} position={} spawned={} trackingChunks={}", name, mob.getPos(), spawned, type.getMaxTrackDistance());

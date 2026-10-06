@@ -6,7 +6,9 @@ import meteordevelopment.meteorclient.renderer.Shader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.OutlineVertexConsumerProvider;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.entity.Entity;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -18,7 +20,7 @@ public abstract class PostProcessShader {
     protected Shader shader;
 
     public void init(String frag) {
-        vertexConsumerProvider = new OutlineVertexConsumerProvider(mc.getBufferBuilders().getEntityVertexConsumers());
+        vertexConsumerProvider = new OutlineOnlyVertexConsumerProvider(VertexConsumerProvider.immediate(new BufferBuilder(256)));
         framebuffer = new SimpleFramebuffer(mc.getWindow().getFramebufferWidth(), mc.getWindow().getFramebufferHeight(), false, MinecraftClient.IS_SYSTEM_MAC);
         shader = new Shader("post-process/base.vert", "post-process/" + frag + ".frag");
     }

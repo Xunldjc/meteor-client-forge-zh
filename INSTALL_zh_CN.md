@@ -6,9 +6,9 @@
 
 ## 安装
 
-1. 使用 Java 17，建立独立的 Minecraft **1.20.1 / Forge 47.2.0** 客户端实例。
+1. 使用 Java 17，建立 Minecraft **1.20.1 / Forge 47.4.10** 客户端实例。
 2. 把安装包内 `mods/` 下的两个 JAR 一起放进该实例的 `mods` 文件夹：
-   `meteor-client-0.5.4-forge-zh.jar` 和 `baritone-unoptimized-forge-1.10.1.jar`。
+   `meteor-client-0.5.4-mc1.20.1-render-fix-zh.jar` 和 `baritone-unoptimized-forge-1.10.1.jar`。
 3. 正常启动游戏，按右 Shift 打开 Meteor 界面。
 
 不要安装 Fabric Loader、Fabric API 或 Connector，也不要同时放入旧版 Meteor、
@@ -27,8 +27,9 @@ Meteor 界面默认简体中文。需要英文时，在启动器 JVM 参数中�
 - 仍有部分设置说明、聊天消息、动态标签及选项使用英文；不是全量汉化。
 - 已验证正式 Forge 安装启动、Mixin 审计、模块/设置界面、创建单人超平坦世界、
   移动 40 个游戏刻，以及全亮模块的开关状态恢复和正常退出。
-- 这些检查不代表每个模块的效果都正确。联机、长时间运行、第三方附加模组、
-  Embeddium/Oculus/其他渲染器，以及 Forge 实验性光照管线尚未验证。
+- 最新 JAR 已通过 Zombie Invade 100 Days v2.3 整包、纯 Forge 和 EntityCulling 回归。
+- 这些检查不代表每个模块的效果都正确。联机、长时间运行、其他附加模组、
+  外部光影包以及 Forge 实验性光照管线尚未验证。
   Fabric 附加模组不能直接兼容。
 
 ## 2026-10-06 搜索与实体透视修订
@@ -48,21 +49,23 @@ Meteor 界面默认简体中文。需要英文时，在启动器 JVM 参数中�
 
 拼音库已打入 Meteor JAR，无需另装依赖。随包提供 pinyin4j 2.5.1 对应源码与版权说明。
 
+## Shader 重复实体绘制修复
+
+Shader 遮罩现在只写入独立轮廓缓冲区，修复完整实体模型被额外绘制成悬浮副本的问题。
+保留远距离轮廓、拼音搜索以及 ATM9 的 FOV、数据包与 EntityCulling 兼容修复。
+这次测试中外部光影包未启用。
+
 请先在独立实例和测试存档中使用，并遵守服务器规则。遇到问题保留
 `logs/latest.log` 与 `crash-reports`。
 
 ## 源码与许可证
 
-`MODIFIED_FILE.zip` 是完整修改源码，`DIFF.patch` 可在对应上游提交上用
-`git apply --binary DIFF.patch` 重建。Java 17 下执行 `gradlew.bat build`
-或 `./gradlew build`；首次构建需要网络下载 Gradle、Forge 和映射依赖。
-
-`VERIFICATION.txt` 提供实际命令、输出、退出状态与哈希。
-`ROLLBACK.sh TARGET_SOURCE_ZIP` 会用同目录的 `BASELINE.zip` 恢复目标源码 ZIP
-副本，它不是已安装游戏实例的配置卸载脚本。
-新增 `ROLLBACK.sh TARGET_SOURCE_ZIP --previous-release` 可恢复本次改动前的 Forge
-源码 ZIP，要求同目录的 `previous-release-20261005/MODIFIED_FILE.zip`；默认命令
-仍恢复原始上游源码。此前安装 JAR 已保存在 `previous-release-20261005/mods/`。
+`source/MODIFIED_FILE.zip` 是已验证 JAR 的完整构建源码。Java 17 下执行
+`gradlew.bat build` 或 `./gradlew build`；首次构建需要下载依赖。
+默认编译目标 Forge 47.2.0，生产 JAR 在 Forge 47.4.10 上验证。
+Release 的 `DIFF-from-previous-github.patch` 对应本仓库旧提交
+`87c778ab594eee7e2f66d7fcb433c586ba8d0b68` 到新发布提交的源码变更。
+`VERIFY_RELEASE.txt` 提供公开测试摘要，`SHA256SUMS.txt` 提供下载校验值。
 
 Meteor 及修改源码遵循 **GPL-3.0**。Baritone v1.10.1 来自
 https://github.com/cabaletta/baritone/releases/tag/v1.10.1 ，随包原样分发，

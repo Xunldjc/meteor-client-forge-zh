@@ -1,59 +1,75 @@
 # Observed Verification Summary
 
-Unofficial Meteor Client 0.5.4 native Forge port. This is not an upstream release.
-Only Minecraft 1.20.1 is delivered. All statements below describe observed local
-tests; GitHub Actions build results are separate and do not prove game startup.
+Meteor Client 0.5.4 native Forge port, Minecraft 1.20.1, Java 17.
+The current Release replaces both older public Releases with the tested render fix.
+Local runtime tests and GitHub Actions builds are separate checks.
 
-## Forge 47.2.0
+## Delivered Binary
 
-- JDK 17 `gradlew.bat build --no-daemon --console=plain`: exit 0.
-- Chinese/English translations, Unicode wrapping, pinyin, ASM stack and
-  distribution metadata/SRG smoke checks pass.
-- Real Forge client, required Mixin audit, 168 modules, Chinese GUI/settings,
-  creative flat singleplayer world and movement checks: normal Java exit 0.
-- Module, shared setting matcher, real block/item/entity selector pinyin checks
-  pass. The setting check is not a full settings GUI regression.
-- At the controlled 0.5 entity-distance scale, the loaded cow at ~74.19 blocks
-  and pig at ~60.30 blocks fail the vanilla model distance test but have valid
-  Shader ESP mask pixels after the fix (59 / 50 in the delivered-JAR run).
-- Pre-fix baseline and pre-fix rollback: pinyin absent, both distant masks empty.
+- `meteor-client-0.5.4-mc1.20.1-render-fix-zh.jar`
+- SHA256: `0a7abb89e49680dd2a40f1d1cc12f0234cc2931557fc2cf277c6e22b986e10eb`
+- Build target: Forge 47.2.0; production modpack runtime: Forge 47.4.10.
+- JDK 17 build exit 0. Translation, pinyin, Unicode wrapping, distribution,
+  ASM stack and FOV compatibility checks passed.
+- Test probe is a separate test-only mod and is absent from the production JAR.
 
-Delivered JAR SHA256:
-`0d9a8b9a574aa8057738e882d582d032e1bbb269654d7e37ddbec7370eae86f4`
+## Duplicate Entity Rendering
 
-## Forge 47.4.10
+Vanilla OutlineVertexConsumerProvider sends normal render layers to both normal
+and outline consumers. Meteor's extra mask pass used the shared entity buffers,
+but its outline draw flushed only outlines. Pending textured model geometry was
+therefore submitted again by later draws under different render state.
 
-- Same source code and fixture; Forge property changed to 47.4.10.
-- Full JDK 17 build: exit 0; all 16 tasks executed; all six smoke checks pass.
-- Real Forge 47.4.10 client, required Mixin audit, Chinese GUI/world and all five
-  pinyin checks pass; normal Java exit 0.
-- Distant cow/pig Shader masks contain 58 / 53 green model pixels while vanilla
-  distance acceptance is false. ESP selections, mode and active state restored.
-- Source ZIP reconstructed from the base ZIP and supplemental patch; hashes and
-  file set match for all 984 source files. Installer entries individually checked.
-- Source rollback to the 47.2.0 base was executed on a separate ZIP copy, exact
-  SHA256 restored, then rebuilt and rerun with the same fixture; exits 0.
-  The restored build retains the pinyin/ESP fixes (distant masks 54 / 53).
+PostProcessShader now uses an isolated OutlineOnlyVertexConsumerProvider.
+It accepts direct outline layers, resolves outline layers from normal models,
+and discards non-outline features without writing ordinary entity buffers.
 
-Delivered JAR SHA256:
-`8af9a973e5cd9168f36b1ef3db331015fdb51f069e63b71e6adc71ed83f6c8e0`
+Real Forge probe, four vertices per render-layer case:
 
-## Remaining Targets And Limits
+```text
+BASELINE: SHADER_BUFFER_RESULT modelLeak=true featureLeak=true directOutlineLeak=false
+          expected assertion SHADER_BUFFER_LEAK; process exit -1
+MODIFIED: SHADER_BUFFER_ISOLATION_PASS cases=3 normalVertices=0
+          process exit 0
+ROLLBACK: SHADER_BUFFER_RESULT modelLeak=true featureLeak=true directOutlineLeak=false
+          original JAR hash restored on a separate copy; process exit -1
+```
 
-40 selected Minecraft/Forge targets were validated against official version
-catalogs. Only one Minecraft target has a completed port. 1.14.4 dependency
-configuration fails (Java 16 Discord IPC versus Java 8 target; old MCP/Yarn
-remapping conflicts; upstream Baritone 1.4.6 has no Forge runtime support).
-Its pinyin component alone passes real javac 8 / java 8 tests, class version 52.
-38 targets, including 26.3 / Forge 66.0.9, are not ported or built.
+JAR and source archive rollback commands both exited 0. Delivered files remain fixed.
 
-Warnings are not hidden: the recommended Forge build reports deprecated API and
-Beacon @Shadow validation warnings; runtime audit passes. Not verified: every
-module's effect, multiplayer, long sessions, user modpacks, custom renderers,
-Embeddium/Oculus or third-party shader packs. Localization remains partial.
-Unloaded/server-untracked entities cannot be drawn. No tracer code was changed.
+## Production Runtime Tests
 
-Release asset checksums are in each release's SHA256SUMS.txt. Complete modified
-sources and patches accompany the release assets. Publication-only README,
-workflow and progress documents do not alter the tested Java code/resources.
-Private local logs and machine paths are deliberately not published.
+- Zombie Invade 100 Days v2.3, 145 top-level mod JARs, Forge 47.4.10,
+  Java 17.0.17: startup, Chinese GUI/settings, new flat world, movement,
+  module state restoration, 2 MB payload and five pinyin checks passed; exit 0.
+- Full-pack near cow, distant cow (~74.19 blocks), small pig (~60.30 blocks):
+  317 / 17 / 12 mask pixels. Both distant entities fail vanilla distance
+  acceptance but retain their Meteor outline. Screenshot has no floating copies.
+- Standalone Forge 47.4.10: full Mixin audit, strict normal/panorama FOV return,
+  GUI/world/search/payload checks and 319 / 17 / 12 mask pixels; exit 0.
+- EntityCulling-only Forge 47.2.0 subset: ordinary culling remains unchanged,
+  Meteor Shader pass is forced-visible only within that pass, state restored;
+  GUI/world/search and all three masks passed; exit 0.
+- Existing ATM9 canonical-FOV selector and external payload-provider integration
+  are preserved. Build regression also checks the captured ATM9 GameRenderer.
+
+The full-pack FOV probe allows another mod to override the final normal-FOV
+return while requiring one callback, finite output and restored state. Standalone
+checks remain strict. Full-pack forced global Mixin audit is disabled for absent
+optional targets; required injections remain enabled, and standalone audit runs.
+
+Oculus was present with `enableShaders=false`. This verifies Meteor Shader ESP,
+not all external shaderpacks, custom entity renderers, modules or multiplayer.
+Tests used isolated directories and disposable worlds, not existing saves.
+
+## Source And Publication
+
+The source ZIP is the exact build-input archive. The Git tag has the same code,
+resources and build inputs; Git normalizes text line endings. Publication README
+and progress documents are updated separately. The existing two-target build
+workflow is retained. No personal paths, authentication data or raw local logs
+are included in the public assets.
+
+Meteor remains GPL-3.0. The installer includes the modified source archive and
+corresponding Baritone/pinyin4j sources and notices. See SHA256SUMS.txt for all
+download hashes. Other Minecraft-version ports remain paused.

@@ -4,33 +4,38 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class ForgeAsm {
     private ForgeAsm() {}
 
     public static void transformFov(ClassNode target) {
         MethodNode method = null;
         for (MethodNode candidate : target.methods) {
-            Type[] args = Type.getArgumentTypes(candidate.desc);
-            if (Type.getReturnType(candidate.desc).equals(Type.DOUBLE_TYPE) && args.length == 3
-                && args[0].getSort() == Type.OBJECT && args[1].equals(Type.FLOAT_TYPE) && args[2].equals(Type.BOOLEAN_TYPE)) {
-                if (method != null) throw new IllegalStateException("Ambiguous getFov descriptor in " + target.name);
+            // Mod accessors can share vanilla's descriptor; select its mapped identity.
+            boolean named = candidate.name.equals("getFov") && candidate.desc.equals("(Lnet/minecraft/client/render/Camera;FZ)D");
+            boolean srg = candidate.name.equals("m_109141_") && candidate.desc.equals("(Lnet/minecraft/client/Camera;FZ)D");
+            if ((named || srg) && (candidate.access & Opcodes.ACC_STATIC) == 0) {
+                if (method != null) throw new IllegalStateException("Ambiguous getFov target in " + target.name);
                 method = candidate;
             }
         }
         if (method == null) throw new IllegalStateException("getFov not found in " + target.name);
 
-        int count = 0;
+        List<AbstractInsnNode> anchors = new ArrayList<>(2);
         for (AbstractInsnNode insn : method.instructions.toArray()) {
             if (insn instanceof LdcInsnNode ldc && Double.valueOf(90).equals(ldc.cst)) {
-                method.instructions.insert(insn, fovEvent());
-                count++;
+                anchors.add(insn);
             } else if (insn instanceof MethodInsnNode call && call.owner.equals("java/lang/Integer")
-                && call.name.equals("intValue") && insn.getNext().getOpcode() == Opcodes.I2D) {
-                method.instructions.insert(insn.getNext(), fovEvent());
-                count++;
+                && call.name.equals("intValue") && call.desc.equals("()I")) {
+                AbstractInsnNode conversion = insn.getNext();
+                while (conversion != null && conversion.getOpcode() < 0) conversion = conversion.getNext();
+                if (conversion != null && conversion.getOpcode() == Opcodes.I2D) anchors.add(conversion);
             }
         }
-        if (count != 2) throw new IllegalStateException("Expected two FOV hooks, found " + count);
+        if (anchors.size() != 2) throw new IllegalStateException("Expected two FOV hooks, found " + anchors.size());
+        for (AbstractInsnNode anchor : anchors) method.instructions.insert(anchor, fovEvent());
     }
 
     private static InsnList fovEvent() {

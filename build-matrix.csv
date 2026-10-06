@@ -18,7 +18,7 @@
 "1.19.3","44.1.0","recommended","17","NOT_PORTED",,,,,"Existing 1.20.1 source is not a validated port to this release."
 "1.19.4","45.4.0","recommended","17","NOT_PORTED",,,,,"Existing 1.20.1 source is not a validated port to this release."
 "1.20","46.0.14","latest","17","NOT_PORTED",,,,,"Existing 1.20.1 source is not a validated port to this release."
-"1.20.1","47.4.10","recommended","17","VALIDATED","0","0","meteor-client-0.5.4-mc1.20.1-forge47.4.10-zh.jar","8af9a973e5cd9168f36b1ef3db331015fdb51f069e63b71e6adc71ed83f6c8e0","Forge 47.4.10 build, production GUI/world/search/Shader regression pass. Only this selected target is delivered."
+"1.20.1","47.4.10","recommended","17","VALIDATED","0","0","meteor-client-0.5.4-mc1.20.1-render-fix-zh.jar","0a7abb89e49680dd2a40f1d1cc12f0234cc2931557fc2cf277c6e22b986e10eb","Forge 47.2.0 build; Forge 47.4.10 Zombie pack and standalone runtime pass. Shader buffer isolation and EntityCulling regressions pass."
 "1.20.2","48.1.0","recommended","17","NOT_PORTED",,,,,"Existing 1.20.1 source is not a validated port to this release."
 "1.20.3","49.0.2","latest","17","NOT_PORTED",,,,,"Existing 1.20.1 source is not a validated port to this release."
 "1.20.4","49.2.0","recommended","17","NOT_PORTED",,,,,"Existing 1.20.1 source is not a validated port to this release."
